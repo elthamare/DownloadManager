@@ -1,5 +1,13 @@
 package com.example.downloadmanager.app;
 
+import android.app.DownloadManager;
+import android.app.DownloadManager.Query;
+import android.app.DownloadManager.Request;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -13,6 +21,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -23,6 +34,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
      * current dropdown position.
      */
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+
+    private long enqueue;
+    private DownloadManager dm;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +62,36 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
                                 getString(R.string.title_section3),
                         }),
                 this);
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                    long downloadId = intent.getLongExtra(
+                            DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                    Query query = new Query();
+                    query.setFilterById(enqueue);
+                    Cursor c = dm.query(query);
+                    if (c.moveToFirst()) {
+                        int columnIndex = c
+                                .getColumnIndex(DownloadManager.COLUMN_STATUS);
+                        if (DownloadManager.STATUS_SUCCESSFUL == c
+                                .getInt(columnIndex)) {
+
+                            ImageView view = (ImageView) findViewById(R.id.downloadImage);
+                            String uriString = c
+                                    .getString(c
+                                            .getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                            view.setImageURI(Uri.parse(uriString));
+                        }
+                    }
+                }
+            }
+        };
+
+        registerReceiver(receiver, new IntentFilter(
+                DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     @Override
@@ -94,6 +139,27 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
         return true;
     }
 
+    public void onClick(View view)
+    {
+        dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+
+        Button downloadButton = (Button) findViewById(R.id.downloadButton);
+        downloadButton.setText(getString(R.string.downloadButtonActive));
+
+        EditText urlToDownload = (EditText) findViewById(R.id.urlToDownload);
+        String text = urlToDownload.getText().toString();
+        Request request = new Request(Uri.parse(text));
+
+        enqueue = dm.enqueue(request);
+    }
+
+    public void showDownloads(View view)
+    {
+        Intent i = new Intent();
+        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        startActivity(i);
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -125,6 +191,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.OnNavig
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 //            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
 //            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
+            Button downloadButton = (Button) rootView.findViewById(R.id.downloadButton);
+            downloadButton.setText(getString(R.string.downloadButton));
+            Button viewDownloadsButton = (Button) rootView.findViewById(R.id.viewDownloadsButton);
+            viewDownloadsButton.setText(getString(R.string.viewDownloadsButton));
             return rootView;
         }
     }

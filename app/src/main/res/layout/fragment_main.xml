@@ -12,29 +12,38 @@
         android:id="@+id/section_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />-->
-    
+
+
+    <EditText
+        android:id="@+id/urlToDownload"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textUri"
+        />
+
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/downloadButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/urlToDownload"
         android:text="Start Download"
         android:onClick="onClick"
         />
     
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/viewDownloadsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button1"
+        android:layout_below="@id/downloadButton"
         android:text="View Downloads"
         android:onClick="showDownloads"
         />
     
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/downloadImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/button2"
+        android:layout_below="@id/viewDownloadsButton"
         android:src="@drawable/ic_launcher"
         />
 

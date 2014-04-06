@@ -5,6 +5,10 @@
     <string name="title_section1">Functions</string>
     <string name="title_section2">Downloads list</string>
     <string name="title_section3">History</string>
+    <string name="downloadButton">Start Download</string>
+    <string name="downloadButtonActive">Downloading ...</string>
+    <string name="viewDownloadsButton">View Downloads</string>
     <string name="action_settings">Settings</string>
 
 </resources>
+
